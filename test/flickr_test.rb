@@ -99,4 +99,12 @@ describe Shrine::Storage::Flickr do
       assert_includes uploaded_file.url, "_o.jpg"
     end
   end
+
+  describe "#flickr_url" do
+    it "creates a Flickr URL" do
+      uploaded_file = @uploader.upload(image)
+
+      refute_empty uploaded_file.flickr_url
+    end
+  end
 end

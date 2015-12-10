@@ -95,6 +95,10 @@ class Shrine
           end
         end
 
+        def flickr_url
+          "https://www.flickr.com/photos/#{storage.person.id}/#{id}"
+        end
+
         private
 
         def io

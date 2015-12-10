@@ -102,6 +102,18 @@ flickr = Shrine::Storage::Flickr.new(access_token: ["...", "..."])
 flickr.clear!(:confirm)
 ```
 
+### Linking back
+
+In Flickr's guidelines it states that if you're displaying photos from Flickr
+on another webiste, you should always link back to Flickr. For that you can
+use `#flickr_url`:
+
+```erb
+<a href="<%= @user.avatar.flickr_url %>">
+  <img src="<%= @user.avatar.url(size: "Small 320") %>">
+</a>
+```
+
 ## Contributing
 
 First you need to create an `.env` file where you will store your credentials:
