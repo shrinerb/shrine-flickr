@@ -22,10 +22,16 @@ class Shrine
         id.replace(photo_id)
         album.add_photo(id) if album
 
-        metadata["flickr_sizes"] = {}
+        metadata["flickr_sizes"] = []
         photo = photo(id).get_sizes!
         photo.available_sizes.each do |size|
-          metadata["flickr_sizes"][size] = photo.size!(size).source_url
+          photo.size!(size)
+          metadata["flickr_sizes"] << {
+            "name"   => size,
+            "url"    => photo.source_url,
+            "width"  => photo.width,
+            "height" => photo.height,
+          }
         end
       end
 
@@ -76,7 +82,7 @@ class Shrine
       module FileMethods
         def download
           if storage.is_a?(Storage::Flickr)
-            Down.download(original_url)
+            Down.download(url)
           else
             super
           end
@@ -84,15 +90,18 @@ class Shrine
 
         def url(**options)
           if storage.is_a?(Storage::Flickr)
-            if size = options[:size]
-              size = size.to_s.tr("_", " ").capitalize if size.is_a?(Symbol)
-              flickr_sizes.fetch(size)
-            else
-              original_url
-            end
+            size_attribute("url", **options)
           else
             super
           end
+        end
+
+        def width(**options)
+          size_attribute("width", **options)
+        end
+
+        def height(**options)
+          size_attribute("height", **options)
         end
 
         def flickr_url
@@ -101,16 +110,18 @@ class Shrine
 
         private
 
+        def size_attribute(key, size: "Original")
+          size = size.to_s.tr("_", " ").capitalize if size.is_a?(Symbol)
+          hash = flickr_sizes.find { |hash| hash["name"] == size }
+          hash.fetch(key) if hash
+        end
+
         def io
           if storage.is_a?(Storage::Flickr)
             @io ||= download
           else
             super
           end
-        end
-
-        def original_url
-          flickr_sizes.fetch("Original")
         end
 
         def flickr_sizes

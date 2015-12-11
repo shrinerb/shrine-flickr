@@ -31,32 +31,59 @@ require "shrine/storage/flickr"
 Shrine::Storage::Flickr.new(access_token: ["key", "secret"])
 ```
 
-### URL options
+### URL, width and height
 
-After the image is uploaded, available sizes and their URLs will be saved to
-file's `#metadata`:
+After the image is uploaded, URLs, widths and heighs of all sizes will be saved
+to "flickr_sizes" metadata key:
 
 ```rb
-user.avatar.metadata #=>
-# {
-#   "flickr_sizes" => {
-#     "Square 75" => "https://farm6.staticflickr.com/5687/23578693711_ab9745cfd0_s.jpg",
-#     "Thumbnail" => "https://farm6.staticflickr.com/5687/23578693711_ab9745cfd0_t.jpg",
-#     "Original" => "https://farm6.staticflickr.com/5687/23578693711_0bf01bb96a_o.jpg",
+user.avatar.metadata["flickr_sizes"] #=>
+# [
+#   {
+#     "name" => "Square 75",
+#     "url" => "https://farm6.staticflickr.com/5706/23367159280_36d62093cf_s.jpg",
+#     "width" => 75,
+#     "height" => 75
+#   },
+#   {
+#     "name" => "Thumbnail",
+#     "url" => "https://farm6.staticflickr.com/5706/23367159280_36d62093cf_t.jpg",
+#     "width" => 100,
+#     "height" => 67
+#   },
+#   {
+#     "name" => "Original",
+#     "url" => "https://farm6.staticflickr.com/5706/23367159280_499ddf155e_o.jpg",
+#     "width" => 100,
+#     "height" => 67
 #   }
-# }
+# ]
 ```
 
-You can pass in the name of the size as a URL option:
+You can pass the size name to `#url`, `#width` and `#height`:
 
 ```rb
 user.avatar.url(size: "Medium 500")
+user.avatar.width(size: "Thumbnail")
+user.avatar.height(size: "Small 320")
+
+# alternative notation
 user.avatar.url(size: :medium_500)
+user.avatar.width(size: :thumbnail)
+user.avatar.height(size: :small_320)
+
+# defaults to "Original"
+user.avatar.url
+user.avatar.width
+user.avatar.height
 ```
 
 All possible sizes are: "Square 75", "Thumbnail", "Square 150", "Small 240",
 "Small 320", "Medium 500", "Medium 640", "Medium 800", "Large 1024", "Large
 1600", "Large 2048" and "Original".
+
+Note that when using storage-flickr you shouldn't load the `store_dimensions`
+plugin, because they're not compatible.
 
 ### Album
 

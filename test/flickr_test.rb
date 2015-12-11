@@ -28,7 +28,7 @@ describe Shrine::Storage::Flickr do
       @flickr.upload(image, id = "foo", metadata = {})
 
       assert_match /^\d+$/, id
-      refute_empty metadata["flickr_sizes"]
+      assert_equal ["name", "url", "width", "height"], metadata["flickr_sizes"][0].keys
     end
 
     it "adds the photo to the album" do
@@ -90,13 +90,16 @@ describe Shrine::Storage::Flickr do
     end
   end
 
-  describe "#url" do
+  describe "#url, #width, #height" do
     it "behaves correctly" do
       uploaded_file = @uploader.upload(image)
 
       assert_includes uploaded_file.url(size: :square_75), "_s.jpg"
       assert_includes uploaded_file.url(size: "Thumbnail"), "_t.jpg"
       assert_includes uploaded_file.url, "_o.jpg"
+
+      assert_equal 100, uploaded_file.width
+      assert_equal 67, uploaded_file.height
     end
   end
 
