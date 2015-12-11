@@ -28,7 +28,7 @@ access token, you can assign it to the storage:
 ```rb
 require "shrine/storage/flickr"
 
-Shrine::Storage::Flickr.new(access_token: ["key", "secret"])
+Shrine::Storage::Flickr.new(access_token: ["key", "secret"], user: "12345678@N01")
 ```
 
 ### URL, width and height
