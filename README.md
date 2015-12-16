@@ -109,12 +109,10 @@ key:
 ```rb
 class MyUploader < Shrine
   def extract_metadata(io, context)
-    metadata = super
-    metadata["flickr"] = {
+    super.update("flickr" => {
       title: io.original_filename,
       description: context[:record].description,
-    }
-    metadata
+    })
   end
 end
 ```
