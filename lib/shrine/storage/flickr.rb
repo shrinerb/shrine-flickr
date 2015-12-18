@@ -43,6 +43,10 @@ class Shrine
         raise NotImplementedError, "#open cannot be implemented"
       end
 
+      def read(id)
+        raise NotImplementedError, "#read cannot be implemented"
+      end
+
       def exists?(id)
         !!photo(id).get_info!
       rescue ::Flickr::ApiError => error
