@@ -41,6 +41,7 @@ user.avatar.url(size: :medium_500) # alternative notation
 
 user.avatar.url(size: "Original")
 user.avatar.url(size: :original) # alternative notation
+```
 
 All possible sizes are: "Square 75", "Thumbnail", "Square 150", "Small 240",
 "Small 320", "Medium 500", "Medium 640", "Medium 800", "Large 1024", and
