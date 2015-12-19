@@ -31,59 +31,20 @@ require "shrine/storage/flickr"
 Shrine::Storage::Flickr.new(access_token: ["key", "secret"], user: "12345678@N01")
 ```
 
-### URL, width and height
+### URL
 
-After the image is uploaded, URLs, widths and heighs of all sizes will be saved
-to "flickr_sizes" metadata key:
-
-```rb
-user.avatar.metadata["flickr_sizes"] #=>
-# [
-#   {
-#     "name" => "Square 75",
-#     "url" => "https://farm6.staticflickr.com/5706/23367159280_36d62093cf_s.jpg",
-#     "width" => 75,
-#     "height" => 75
-#   },
-#   {
-#     "name" => "Thumbnail",
-#     "url" => "https://farm6.staticflickr.com/5706/23367159280_36d62093cf_t.jpg",
-#     "width" => 100,
-#     "height" => 67
-#   },
-#   {
-#     "name" => "Original",
-#     "url" => "https://farm6.staticflickr.com/5706/23367159280_499ddf155e_o.jpg",
-#     "width" => 100,
-#     "height" => 67
-#   }
-# ]
-```
-
-You can pass the size name to `#url`, `#width` and `#height`:
+To generate source URLs, simply pass the name of the size to `#url`:
 
 ```rb
 user.avatar.url(size: "Medium 500")
-user.avatar.width(size: "Thumbnail")
-user.avatar.height(size: "Small 320")
+user.avatar.url(size: :medium_500) # alternative notation
 
-# alternative notation
-user.avatar.url(size: :medium_500)
-user.avatar.width(size: :thumbnail)
-user.avatar.height(size: :small_320)
-
-# defaults to "Original"
-user.avatar.url
-user.avatar.width
-user.avatar.height
-```
+user.avatar.url(size: "Original")
+user.avatar.url(size: :original) # alternative notation
 
 All possible sizes are: "Square 75", "Thumbnail", "Square 150", "Small 240",
-"Small 320", "Medium 500", "Medium 640", "Medium 800", "Large 1024", "Large
-1600", "Large 2048" and "Original".
-
-Note that when using storage-flickr you shouldn't load the `store_dimensions`
-plugin, because they're not compatible.
+"Small 320", "Medium 500", "Medium 640", "Medium 800", "Large 1024", and
+"Original".
 
 ### Album
 
@@ -130,11 +91,11 @@ flickr.clear!(:confirm)
 ### Linking back
 
 In Flickr's guidelines it states that if you're displaying photos from Flickr
-on another webiste, you should always link back to Flickr. For that you can
-use `#flickr_url`:
+on another webiste, you should always link back to Flickr. This link will be
+generate when you don't pass any arguments to `#url`:
 
 ```erb
-<a href="<%= @user.avatar.flickr_url %>">
+<a href="<%= @user.avatar.url %>">
   <img src="<%= @user.avatar.url(size: "Small 320") %>">
 </a>
 ```

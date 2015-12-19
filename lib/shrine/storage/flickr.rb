@@ -1,13 +1,15 @@
 require "shrine"
 require "flickr-objects"
 require "down"
+require "net/http"
+require "uri"
 
 class Shrine
   module Storage
     class Flickr
       attr_reader :person, :flickr, :upload_options, :album
 
-      def initialize(upload_options: {}, user:, access_token:, album: nil)
+      def initialize(user:, access_token:, album: nil, upload_options: {})
         @flickr = ::Flickr.new(*access_token)
         @person = @flickr.people.find(user)
         @upload_options = upload_options
@@ -15,51 +17,49 @@ class Shrine
       end
 
       def upload(io, id, metadata = {})
-        options = metadata.delete("flickr") || {}
+        options = {title: metadata["filename"]}
         options.update(upload_options)
+        options.update(metadata.delete("flickr") || {})
 
         photo_id = flickr.upload(io, options)
-        id.replace(photo_id)
-        album.add_photo(id) if album
+        album.add_photo(photo_id) if album
 
-        metadata["flickr_sizes"] = []
-        photo = photo(id).get_sizes!
-        photo.available_sizes.each do |size|
-          photo.size!(size)
-          metadata["flickr_sizes"] << {
-            "name"   => size,
-            "url"    => photo.source_url,
-            "width"  => photo.width,
-            "height" => photo.height,
-          }
-        end
+        photo = photo(photo_id).get_info!
+        id.replace(generate_id(photo))
+
+        photo.attributes
       end
 
       def download(id)
-        raise NotImplementedError, "#download cannot be implemented"
+        Down.download(url(id, size: "Original"))
       end
 
       def open(id)
-        raise NotImplementedError, "#open cannot be implemented"
+        download(id)
       end
 
       def read(id)
-        raise NotImplementedError, "#read cannot be implemented"
+        Net::HTTP.get(URI.parse(url(id, size: "Original")))
       end
 
       def exists?(id)
-        !!photo(id).get_info!
+        !!photo(photo_id(id)).get_info!
       rescue ::Flickr::ApiError => error
         raise error if error.code != 1
         false
       end
 
       def delete(id)
-        photo(id).delete
+        photo(photo_id(id)).delete
       end
 
-      def url(id, **options)
-        raise NotImplementedError, "#url cannot be implemented"
+      def url(id, size: nil)
+        if size
+          size = size.to_s.tr("_", " ").capitalize if size.is_a?(Symbol)
+          "https://farm%s.staticflickr.com/%s/%s_%s%s.%s" % size_data(size, id)
+        else
+          "https://www.flickr.com/photos/#{person.id}/#{photo_id(id)}"
+        end
       end
 
       def clear!(confirm = nil)
@@ -76,64 +76,38 @@ class Shrine
       def photo(id)
         flickr.photos.find(id)
       end
-    end
-  end
-end
 
-class Shrine
-  module Plugins
-    module Flickr
-      module FileMethods
-        def download
-          if storage.is_a?(Storage::Flickr)
-            Down.download(url)
-          else
-            super
-          end
+      private
+
+      def size_data(size, id)
+        farm, server, photo_id, secret, original_secret, original_format = id.split(/\W/)
+
+        case size
+        when "Square 75"  then [farm, server, photo_id, secret, "_s", "jpg"]
+        when "Square 150" then [farm, server, photo_id, secret, "_q", "jpg"]
+        when "Thumbnail"  then [farm, server, photo_id, secret, "_t", "jpg"]
+        when "Small 240"  then [farm, server, photo_id, secret, "_m", "jpg"]
+        when "Small 320"  then [farm, server, photo_id, secret, "_n", "jpg"]
+        when "Medium 500" then [farm, server, photo_id, secret, "",   "jpg"]
+        when "Medium 640" then [farm, server, photo_id, secret, "_z", "jpg"]
+        when "Medium 800" then [farm, server, photo_id, secret, "_c", "jpg"]
+        when "Large 1024" then [farm, server, photo_id, secret, "_b", "jpg"]
+        when "Original"   then [farm, server, photo_id, original_secret, "_o", original_format]
+        when "Large 1600", "Large 2048"
+          raise Shrine::Error, "#{size.inspect} size isn't available"
+        else
+          raise Shrine::Error, "unknown size: #{size.inspect}"
         end
+      end
 
-        def url(**options)
-          if storage.is_a?(Storage::Flickr)
-            size_attribute("url", **options)
-          else
-            super
-          end
-        end
+      def generate_id(photo)
+        "#{photo.farm}-#{photo.server}-#{photo.id}-#{photo.secret}" \
+        "-#{photo["originalsecret"]}.#{photo["originalformat"]}"
+      end
 
-        def width(**options)
-          size_attribute("width", **options)
-        end
-
-        def height(**options)
-          size_attribute("height", **options)
-        end
-
-        def flickr_url
-          "https://www.flickr.com/photos/#{storage.person.id}/#{id}"
-        end
-
-        private
-
-        def size_attribute(key, size: "Original")
-          size = size.to_s.tr("_", " ").capitalize if size.is_a?(Symbol)
-          hash = flickr_sizes.find { |hash| hash["name"] == size }
-          hash.fetch(key) if hash
-        end
-
-        def io
-          if storage.is_a?(Storage::Flickr)
-            @io ||= download
-          else
-            super
-          end
-        end
-
-        def flickr_sizes
-          metadata["flickr_sizes"]
-        end
+      def photo_id(id)
+        id.split("-").fetch(2)
       end
     end
   end
-
-  plugin Plugins::Flickr
 end

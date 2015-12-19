@@ -1,5 +1,5 @@
 require "test_helper"
-require "shrine/storage/flickr"
+require "shrine/storage/linter"
 
 describe Shrine::Storage::Flickr do
   def flickr(options = {})
@@ -23,29 +23,33 @@ describe Shrine::Storage::Flickr do
     @flickr.clear!(:confirm)
   end
 
+  it "passes the linter" do
+    Shrine::Storage::Linter.new(flickr).call(->{image})
+  end
+
+  it "passes the linter with album" do
+    @flickr.upload(image, id = "foo")
+    album = @flickr.flickr.sets.create(title: "foo", primary_photo_id: id.split("-")[2])
+
+    Shrine::Storage::Linter.new(flickr(album: album.id)).call(->{image})
+  end
+
   describe "#upload" do
-    it "uploads and updates the location and metadata" do
-      @flickr.upload(image, id = "foo", metadata = {})
-
-      assert_match /^\d+$/, id
-      assert_equal ["name", "url", "width", "height"], metadata["flickr_sizes"][0].keys
-    end
-
     it "adds the photo to the album" do
       @flickr.upload(image, id = "foo")
-      album = @flickr.flickr.sets.create(title: "foo", primary_photo_id: id)
+      album = @flickr.flickr.sets.create(title: "foo", primary_photo_id: id.split("-")[2])
 
       @flickr = flickr(album: album.id)
       @flickr.upload(image, id = "foo")
 
-      assert_equal id, @flickr.album.photos.find(id).id
+      assert_equal id.split("-")[2], @flickr.album.photos.find(id.split("-")[2]).id
     end
 
     it "applies additional upload options" do
       @flickr.upload_options.update(title: "Title")
       @flickr.upload(image, id = "foo", {"flickr" => {description: "Description"}})
 
-      photo = @flickr.flickr.photos.find(id)
+      photo = @flickr.flickr.photos.find(id.split("-")[2])
       photo.get_info!
 
       assert_equal "Title", photo.title
@@ -53,61 +57,24 @@ describe Shrine::Storage::Flickr do
     end
   end
 
-  describe "#download" do
-    it "downloads the photo from original url" do
-      uploaded_file = @uploader.upload(image)
-
-      assert_equal uploaded_file.download.size, image.size
+  describe "#url" do
+    it "returns URL to the image without arguments" do
+      @flickr.upload(image, id = "foo")
+      assert_match "www.flickr.com", @flickr.url(id)
     end
-  end
 
-  describe "#open" do
-    it "is implemented in terms of #download" do
-      uploaded_file = @uploader.upload(image)
-
-      assert_equal image.size, uploaded_file.read.size
-    end
-  end
-
-  describe "#exists?" do
-    it "returns true for photo that exists" do
+    it "returns source URL of the image with arguments" do
       @flickr.upload(image, id = "foo")
 
-      assert @flickr.exists?(id)
+      assert_match "staticflickr", @flickr.url(id, size: "Square 75")
+      assert_match "staticflickr", @flickr.url(id, size: "Original")
     end
 
-    it "returns false for photo that doesn't exist" do
-      refute @flickr.exists?("foo")
-    end
-  end
-
-  describe "#delete" do
-    it "deletes the photo" do
+    it "raises errors on unavailable or missing sizes" do
       @flickr.upload(image, id = "foo")
-      @flickr.delete(id)
 
-      refute @flickr.exists?(id)
-    end
-  end
-
-  describe "#url, #width, #height" do
-    it "behaves correctly" do
-      uploaded_file = @uploader.upload(image)
-
-      assert_includes uploaded_file.url(size: :square_75), "_s.jpg"
-      assert_includes uploaded_file.url(size: "Thumbnail"), "_t.jpg"
-      assert_includes uploaded_file.url, "_o.jpg"
-
-      assert_equal 100, uploaded_file.width
-      assert_equal 67, uploaded_file.height
-    end
-  end
-
-  describe "#flickr_url" do
-    it "creates a Flickr URL" do
-      uploaded_file = @uploader.upload(image)
-
-      refute_empty uploaded_file.flickr_url
+      assert_raises(Shrine::Error) { @flickr.url(id, size: "Large 1600") }
+      assert_raises(Shrine::Error) { @flickr.url(id, size: "Foo") }
     end
   end
 end
