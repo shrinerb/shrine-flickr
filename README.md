@@ -93,7 +93,7 @@ flickr.clear!(:confirm)
 
 In Flickr's guidelines it states that if you're displaying photos from Flickr
 on another webiste, you should always link back to Flickr. This link will be
-generate when you don't pass any arguments to `#url`:
+generated when you don't pass any arguments to `#url`:
 
 ```erb
 <a href="<%= @user.avatar.url %>">
