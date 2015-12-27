@@ -64,17 +64,15 @@ can pass in the `:upload_options` option:
 Shrine::Storage::Flickr.new(upload_options: {hidden: 1})
 ```
 
-Alternatively, if you would like to do it per-file, you can override
-`#extract_metadata` in your uploader, and add upload options under the "flickr"
-key:
+You can also add upload options per-upload using the `upload_options` plugin:
 
 ```rb
 class MyUploader < Shrine
-  def extract_metadata(io, context)
-    super.update("flickr" => {
+  plugin :upload_options, store: ->(io, context) do
+    {
       title: io.original_filename,
       description: context[:record].description,
-    })
+    }
   end
 end
 ```

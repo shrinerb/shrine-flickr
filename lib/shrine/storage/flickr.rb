@@ -53,7 +53,7 @@ class Shrine
         photo(photo_id(id)).delete
       end
 
-      def url(id, size: nil)
+      def url(id, size: nil, **options)
         if size
           size = size.to_s.tr("_", " ").capitalize if size.is_a?(Symbol)
           "https://farm%s.staticflickr.com/%s/%s_%s%s.%s" % size_data(size, id)
