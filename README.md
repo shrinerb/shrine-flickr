@@ -77,12 +77,23 @@ class MyUploader < Shrine
 end
 ```
 
+### Updating
+
+If you want to update the title and description of the photo, you can use the
+`#update` method:
+
+```rb
+flickr = Shrine::Storage::Flickr.new(**flickr_options)
+# ...
+flickr.update(id, title: "Title", description: "Description")
+```
+
 ### Clearing storage
 
 If you want to delete all photos from this storage, you can call `#clear!`:
 
 ```rb
-flickr = Shrine::Storage::Flickr.new(access_token: ["...", "..."])
+flickr = Shrine::Storage::Flickr.new(**flickr_options)
 # ...
 flickr.clear!(:confirm)
 ```

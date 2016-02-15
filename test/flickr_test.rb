@@ -57,6 +57,19 @@ describe Shrine::Storage::Flickr do
     end
   end
 
+  describe "#update" do
+    it "updates the photo metadata" do
+      @flickr.upload(image, id = "foo")
+      @flickr.update(id, title: "Title", description: "Description")
+
+      photo = @flickr.flickr.photos.find(id.split("-")[2])
+      photo.get_info!
+
+      assert_equal "Title", photo.title
+      assert_equal "Description", photo.description
+    end
+  end
+
   describe "#url" do
     it "returns URL to the image without arguments" do
       @flickr.upload(image, id = "foo")

@@ -34,6 +34,10 @@ class Shrine
         Down.download(url(id, size: "Original"))
       end
 
+      def update(id, options = {})
+        photo(photo_id(id)).set_meta(options)
+      end
+
       def open(id)
         download(id)
       end
