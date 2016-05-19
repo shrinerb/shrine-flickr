@@ -20,7 +20,7 @@ describe Shrine::Storage::Flickr do
   end
 
   after do
-    @flickr.clear!(:confirm)
+    @flickr.clear!
   end
 
   it "passes the linter" do
@@ -47,9 +47,10 @@ describe Shrine::Storage::Flickr do
 
     it "applies additional upload options" do
       @flickr.upload_options.update(title: "Title")
-      @flickr.upload(image, id = "foo", {"flickr" => {description: "Description"}})
+      @uploader.class.plugin :upload_options, flickr: {description: "Description"}
+      uploaded_file = @uploader.upload(image)
 
-      photo = @flickr.flickr.photos.find(id.split("-")[2])
+      photo = @flickr.flickr.photos.find(uploaded_file.id.split("-")[2])
       photo.get_info!
 
       assert_equal "Title", photo.title

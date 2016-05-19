@@ -16,10 +16,10 @@ class Shrine
         @album = @flickr.sets.find(album) if album
       end
 
-      def upload(io, id, metadata = {})
-        options = {title: metadata["filename"]}
+      def upload(io, id, shrine_metadata: {}, **upload_options)
+        options = {title: shrine_metadata["filename"]}
+        options.update(@upload_options)
         options.update(upload_options)
-        options.update(metadata.delete("flickr") || {})
 
         photo_id = flickr.upload(io, options)
         album.add_photo(photo_id) if album
@@ -66,8 +66,7 @@ class Shrine
         end
       end
 
-      def clear!(confirm = nil)
-        raise Shrine::Confirm unless confirm == :confirm
+      def clear!
         if album
           album.photos.each(&:delete)
         else
