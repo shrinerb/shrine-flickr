@@ -1,7 +1,9 @@
 # Shrine::Storage::Flickr
 
-Provides [Flickr] storage for [Shrine]. Flickr is a photo sharing service which
-automatically generates different sizes of uploaded photos.
+Provides [Flickr] storage for [Shrine].
+
+Flickr is a photo sharing service which automatically generates different sizes
+of uploaded photos.
 
 ## Installation
 
