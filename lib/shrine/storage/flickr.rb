@@ -9,10 +9,11 @@ class Shrine
     class Flickr
       attr_reader :person, :flickr, :upload_options, :album
 
-      def initialize(user:, access_token:, album: nil, upload_options: {})
+      def initialize(user:, access_token:, album: nil, upload_options: {}, store_info: nil)
         @flickr = ::Flickr.new(*access_token)
         @person = @flickr.people.find(user)
         @upload_options = upload_options
+        @store_info = store_info
         @album = @flickr.sets.find(album) if album
       end
 
@@ -25,7 +26,8 @@ class Shrine
         album.add_photo(photo_id) if album
 
         photo = photo(photo_id).get_info!
-        id.replace(generate_id(photo))
+        update_id!(photo, id)
+        update_metadata!(photo, shrine_metadata)
 
         photo.attributes
       end
@@ -103,9 +105,13 @@ class Shrine
         end
       end
 
-      def generate_id(photo)
-        "#{photo.farm}-#{photo.server}-#{photo.id}-#{photo.secret}" \
-        "-#{photo["originalsecret"]}.#{photo["originalformat"]}"
+      def update_id!(photo, id)
+        info_id = "#{photo.farm}-#{photo.server}-#{photo.id}-#{photo.secret}-#{photo["originalsecret"]}.#{photo["originalformat"]}"
+        id.replace(info_id)
+      end
+
+      def update_metadata!(photo, metadata)
+        metadata["flickr"] = photo.attributes if @store_info
       end
 
       def photo_id(id)

@@ -80,6 +80,48 @@ class MyUploader < Shrine
 end
 ```
 
+### Storing info
+
+After photo is uploaded, additional information about the photo are requested
+from Flickr, in order to generate the ID. If you want to save those information
+to metadata, you can set `:store_info`:
+
+```rb
+Shrine::Storage::Flickr.new(store_info: true, **flickr_options)
+```
+```rb
+photo = Photo.create(image: image_file)
+photo.image.metadata["flickr"] #=>
+# {
+#   "id"             => "27169370821",
+#   "secret"         => "ab85ddef07",
+#   "server"         => "7754",
+#   "farm"           => 8,
+#   "dateuploaded"   => "1464170485",
+#   "rotation"       => 0,
+#   "originalsecret" => "e77ebc5126",
+#   "originalformat" => "jpg",
+#   "owner"          => {
+#     "nsid"       => "78733179@N04",
+#     "username"   => "@janko-m",
+#     "realname"   => "Janko Marohnić",
+#     "location"   => "Zagreb, Croatia",
+#     "iconserver" => "8033",
+#     "iconfarm"   => 9,
+#     "path_alias" => nil
+#   },
+#   "title"       => {"_content"=>"image"},
+#   "description" => {"_content"=>""},
+#   "dates"       => {
+#     "posted"           => "1464170485",
+#     "taken"            => "2016-05-25 12:01:25",
+#     "takengranularity" => 0,
+#     "takenunknown"     => "1",
+#     "lastupdate"       => "1464170486"
+#   },
+# }
+```
+
 ### Updating
 
 If you want to update the title and description of the photo, you can use the

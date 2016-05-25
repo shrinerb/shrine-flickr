@@ -56,6 +56,13 @@ describe Shrine::Storage::Flickr do
       assert_equal "Title", photo.title
       assert_equal "Description", photo.description
     end
+
+    it "saves photo attributes to metadata if :store_data is set" do
+      @flickr = flickr(store_info: true)
+      @flickr.upload(image, id = "foo", shrine_metadata: metadata = {})
+
+      refute_empty metadata.fetch("flickr")
+    end
   end
 
   describe "#update" do
