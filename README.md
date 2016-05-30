@@ -140,7 +140,7 @@ If you want to delete all photos from this storage, you can call `#clear!`:
 ```rb
 flickr = Shrine::Storage::Flickr.new(**flickr_options)
 # ...
-flickr.clear!(:confirm)
+flickr.clear!
 ```
 
 ### Linking back
