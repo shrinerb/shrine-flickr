@@ -41,7 +41,7 @@ class Shrine
       end
 
       def open(id)
-        download(id)
+        Down.open(url(id, size: "Original"))
       end
 
       def read(id)
