@@ -1,6 +1,6 @@
 Gem::Specification.new do |gem|
   gem.name          = "shrine-flickr"
-  gem.version       = "1.2.0"
+  gem.version       = "1.2.1"
 
   gem.required_ruby_version = ">= 2.1"
 
@@ -10,7 +10,7 @@ Gem::Specification.new do |gem|
   gem.email        = ["janko.marohnic@gmail.com"]
   gem.license      = "MIT"
 
-  gem.files        = Dir["README.md", "LICENSE.txt", "lib/**/*.rb", "shrine-flickr.gemspec"]
+  gem.files        = Dir["README.md", "LICENSE.txt", "lib/**/*.rb", "*.gemspec"]
   gem.require_path = "lib"
 
   gem.add_dependency "shrine", "~> 2.0"
