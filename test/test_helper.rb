@@ -6,6 +6,9 @@ require "minitest/pride"
 require "shrine/storage/flickr"
 require "dotenv"
 
+require "forwardable"
+require "stringio"
+
 Dotenv.load!
 
 Flickr.configure do |config|
@@ -13,8 +16,17 @@ Flickr.configure do |config|
   config.shared_secret = ENV.fetch("FLICKR_SHARED_SECRET")
 end
 
+class FakeIO
+  def initialize(content)
+    @io = StringIO.new(content)
+  end
+
+  extend Forwardable
+  delegate Shrine::IO_METHODS.keys => :@io
+end
+
 class Minitest::Test
   def image
-    File.open("test/fixtures/image.jpg")
+    FakeIO.new(File.read("test/fixtures/image.jpg"))
   end
 end
