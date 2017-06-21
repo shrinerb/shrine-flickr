@@ -1,8 +1,6 @@
 require "shrine"
 require "flickr-objects"
 require "down"
-require "net/http"
-require "uri"
 
 class Shrine
   module Storage
@@ -32,20 +30,12 @@ class Shrine
         photo.attributes
       end
 
-      def download(id)
-        Down.download(url(id, size: "Original"))
-      end
-
       def update(id, options = {})
         photo(photo_id(id)).set_meta(options)
       end
 
       def open(id)
         Down.open(url(id, size: "Original"))
-      end
-
-      def read(id)
-        Net::HTTP.get(URI.parse(url(id, size: "Original")))
       end
 
       def exists?(id)
