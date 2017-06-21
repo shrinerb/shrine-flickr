@@ -47,6 +47,7 @@ class Shrine
 
       def delete(id)
         photo(photo_id(id)).delete
+      rescue ::Flickr::ApiError
       end
 
       def url(id, size: nil, **options)
