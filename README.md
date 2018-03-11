@@ -179,6 +179,6 @@ $ bundle exec rake test
 [MIT](http://opensource.org/licenses/MIT)
 
 [Flickr]: https://www.flickr.com/
-[Shrine]: https://github.com/janko-m/shrine
+[Shrine]: https://github.com/shrinerb/shrine
 [`Flickr::OAuth`]: http://www.rubydoc.info/github/janko-m/flickr-objects/master/Flickr/OAuth
 [Flickr's upload API]: https://www.flickr.com/services/api/upload.api.html

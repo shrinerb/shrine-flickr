@@ -5,7 +5,7 @@ Gem::Specification.new do |gem|
   gem.required_ruby_version = ">= 2.1"
 
   gem.summary      = "Provides Flickr storage for Shrine."
-  gem.homepage     = "https://github.com/janko-m/shrine-flickr"
+  gem.homepage     = "https://github.com/shrinerb/shrine-flickr"
   gem.authors      = ["Janko Marohnić"]
   gem.email        = ["janko.marohnic@gmail.com"]
   gem.license      = "MIT"
