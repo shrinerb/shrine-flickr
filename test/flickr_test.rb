@@ -65,6 +65,14 @@ describe Shrine::Storage::Flickr do
     end
   end
 
+  describe "#options" do
+    it "accepts additional options" do
+      @flickr.upload(image, id = "foo")
+      io = @flickr.open(id, rewindable: false)
+      assert_raises(IOError) { io.rewind }
+    end
+  end
+
   describe "#update" do
     it "updates the photo metadata" do
       @flickr.upload(image, id = "foo")

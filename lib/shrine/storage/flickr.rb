@@ -1,6 +1,6 @@
 require "shrine"
 require "flickr-objects"
-require "down"
+require "down/http"
 
 class Shrine
   module Storage
@@ -34,8 +34,8 @@ class Shrine
         photo(photo_id(id)).set_meta(options)
       end
 
-      def open(id)
-        Down.open(url(id, size: "Original"))
+      def open(id, **options)
+        Down::Http.open(url(id, size: "Original"), **options)
       end
 
       def exists?(id)
