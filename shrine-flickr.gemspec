@@ -1,6 +1,6 @@
 Gem::Specification.new do |gem|
   gem.name          = "shrine-flickr"
-  gem.version       = "1.3.0"
+  gem.version       = "1.4.0"
 
   gem.required_ruby_version = ">= 2.1"
 
