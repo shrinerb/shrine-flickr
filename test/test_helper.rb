@@ -22,7 +22,7 @@ class FakeIO
   end
 
   extend Forwardable
-  delegate Shrine::IO_METHODS.keys => :@io
+  delegate [:read, :size, :rewind, :eof?, :close] => :@io
 end
 
 class Minitest::Test

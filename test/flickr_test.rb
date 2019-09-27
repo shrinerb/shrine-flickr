@@ -24,14 +24,16 @@ describe Shrine::Storage::Flickr do
   end
 
   it "passes the linter" do
-    Shrine::Storage::Linter.new(flickr).call(->{image})
+    linter = Shrine::Storage::Linter.new(flickr, nonexisting: "66-65535-48803966451-2a3f9ddb62-60e419cb0d.jpg")
+    linter.call(->{image})
   end
 
   it "passes the linter with album" do
     @flickr.upload(image, id = "foo")
     album = @flickr.flickr.sets.create(title: "foo", primary_photo_id: id.split("-")[2])
 
-    Shrine::Storage::Linter.new(flickr(album: album.id)).call(->{image})
+    linter = Shrine::Storage::Linter.new(flickr(album: album.id), nonexisting: "66-65535-48803966451-2a3f9ddb62-60e419cb0d.jpg")
+    linter.call(->{image})
   end
 
   describe "#upload" do

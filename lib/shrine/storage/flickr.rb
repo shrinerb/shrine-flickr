@@ -16,7 +16,7 @@ class Shrine
       end
 
       def upload(io, id, shrine_metadata: {}, **upload_options)
-        options = {title: shrine_metadata["filename"]}
+        options = { title: shrine_metadata["filename"] }
         options.update(@upload_options)
         options.update(upload_options)
 
@@ -36,6 +36,8 @@ class Shrine
 
       def open(id, **options)
         Down::Http.open(url(id, size: "Original"), **options)
+      rescue Down::NotFound
+        raise Shrine::FileNotFound, "file #{id.inspect} not found on storage"
       end
 
       def exists?(id)
