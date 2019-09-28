@@ -8,7 +8,7 @@ of uploaded photos.
 ## Installation
 
 ```ruby
-gem "shrine-flickr"
+gem "shrine-flickr", "~> 2.0"
 ```
 
 ## Usage
